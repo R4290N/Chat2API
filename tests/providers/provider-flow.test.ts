@@ -178,15 +178,18 @@ test('DeepSeek provider config uses Web 2.0 browser headers', () => {
 })
 
 test('GLM, Kimi, and MiniMax built-in default models match current web providers', () => {
-  assert.deepEqual(glmConfig.supportedModels, ['GLM-5.1'])
+  assert.deepEqual(glmConfig.supportedModels, ['GLM-5.3', 'GLM-5.1'])
+  assert.equal(glmConfig.modelMappings?.['GLM-5.3'], 'glm-5.3')
   assert.equal(glmConfig.modelMappings?.['GLM-5.1'], 'glm-5.1')
 
-  assert.deepEqual(kimiConfig.supportedModels, ['Kimi-K2.6'])
+  assert.deepEqual(kimiConfig.supportedModels, ['Kimi-K3', 'Kimi-K2.6'])
+  assert.equal(kimiConfig.modelMappings?.['Kimi-K3'], 'kimi-k3')
   assert.equal(kimiConfig.modelMappings?.['Kimi-K2.6'], 'kimi-k2.6')
   assert.equal(kimiConfig.modelMappings?.['Kimi-K2.5'], undefined)
 
-  assert.deepEqual(minimaxConfig.supportedModels, ['MiniMax-M2.7'])
+  assert.deepEqual(minimaxConfig.supportedModels, ['MiniMax-M3', 'MiniMax-M2.7'])
   assert.deepEqual(minimaxConfig.modelMappings, {
+    'MiniMax-M3': 'MiniMax-M3',
     'MiniMax-M2.7': 'MiniMax-M2.7',
   })
 
@@ -200,8 +203,9 @@ test('GLM, Kimi, and MiniMax built-in default models match current web providers
 })
 
 test('Kimi K2.6 model mapping reaches the web chat request payload', () => {
-  assert.deepEqual(kimiConfig.supportedModels, ['Kimi-K2.6'])
+  assert.deepEqual(kimiConfig.supportedModels, ['Kimi-K3', 'Kimi-K2.6'])
   assert.equal(kimiConfig.modelMappings?.['Kimi-K2.6'], 'kimi-k2.6')
+  assert.equal(resolveKimiScenario('kimi-k3'), 'SCENARIO_K3')
   assert.equal(resolveKimiScenario('kimi-k2.6'), 'SCENARIO_K2D6')
   assert.equal(resolveKimiScenario('kimi-k2.5'), 'SCENARIO_K2D5')
 
@@ -251,6 +255,7 @@ test('Kimi and domestic Qwen support account-level chat cleanup', () => {
 
 test('domestic Qwen models match the web chat model ids captured from HAR', () => {
   const expectedModels = [
+    'Qwen3.8-Max',
     'Qwen3.6',
     'Qwen3.7-Max',
     'Qwen3.5-Flash',
@@ -259,6 +264,7 @@ test('domestic Qwen models match the web chat model ids captured from HAR', () =
     'Qwen3-Coder',
   ]
   const expectedMappings = {
+    'Qwen3.8-Max': 'Qwen3.8-Max',
     'Qwen3.6': 'Qwen',
     'Qwen3.7-Max': 'Qwen3.7-Max',
     'Qwen3.5-Flash': 'Qwen3.5-Flash',
@@ -283,6 +289,8 @@ test('domestic Qwen models match the web chat model ids captured from HAR', () =
 
 test('Qwen AI defaults keep only the filtered current web model set', () => {
   const expectedModels = [
+    'Qwen3.8-Max',
+    'Qwen3.7-Plus',
     'Qwen3.7-Max',
     'Qwen3.6-Plus',
     'Qwen3.6-35B-A3B',
@@ -290,6 +298,8 @@ test('Qwen AI defaults keep only the filtered current web model set', () => {
     'Qwen3-Coder',
   ]
   const expectedMappings = {
+    'Qwen3.8-Max': 'qwen3.8-max',
+    'Qwen3.7-Plus': 'qwen3.7-plus',
     'Qwen3.7-Max': 'qwen3.7-max',
     'Qwen3.6-Plus': 'qwen3.6-plus',
     'Qwen3.6-35B-A3B': 'qwen3.6-35b-a3b',
@@ -329,6 +339,9 @@ test('Qwen AI defaults keep only the filtered current web model set', () => {
 
 test('Z.ai default models match the latest chat.z.ai HAR model ids', () => {
   const expectedModels = [
+    'GLM-5.3-Flash',
+    'GLM-5.3',
+    'GLM-5.2',
     'GLM-5.1',
     'GLM-5-Turbo',
     'GLM-5V-Turbo',
@@ -336,6 +349,9 @@ test('Z.ai default models match the latest chat.z.ai HAR model ids', () => {
     'GLM-4.7',
   ]
   const expectedMappings = {
+    'GLM-5.3-Flash': 'GLM-5.3-Flash',
+    'GLM-5.3': 'GLM-5.3',
+    'GLM-5.2': 'glm-5.2',
     'GLM-5.1': 'GLM-5.1',
     'GLM-5-Turbo': 'GLM-5-Turbo',
     'GLM-5V-Turbo': 'GLM-5v-Turbo',
@@ -351,6 +367,9 @@ test('Z.ai default models match the latest chat.z.ai HAR model ids', () => {
   }
 
   const zaiAdapterSource = readFileSync(join(root, 'src/main/proxy/adapters/zai.ts'), 'utf8')
+  assert.match(zaiAdapterSource, /'glm-5\.3-flash': 'GLM-5\.3-Flash'/)
+  assert.match(zaiAdapterSource, /'glm-5\.3': 'GLM-5\.3'/)
+  assert.match(zaiAdapterSource, /'glm-5\.2': 'glm-5\.2'/)
   assert.match(zaiAdapterSource, /'glm-5\.1': 'GLM-5\.1'/)
   assert.match(zaiAdapterSource, /'glm-5v-turbo': 'GLM-5v-Turbo'/)
   assert.match(zaiAdapterSource, /'GLM-5V-Turbo': 'GLM-5v-Turbo'/)
@@ -466,7 +485,15 @@ test('README Supported Providers model lists mirror current defaults with Perple
 })
 
 test('Mimo model names and conversation flow match Xiaomi AI Studio web requests', () => {
-  assert.deepEqual(mimoConfig.supportedModels, ['MiMo-V2.5-Pro', 'MiMo-V2.5', 'MiMo-V2-Flash'])
+  assert.deepEqual(mimoConfig.supportedModels, [
+    'MiMo-V2.6-Pro',
+    'MiMo-V2.6-Flash',
+    'MiMo-V2.5-Pro',
+    'MiMo-V2.5',
+    'MiMo-V2-Flash',
+  ])
+  assert.equal(mimoConfig.modelMappings?.['MiMo-V2.6-Pro'], 'mimo-v2.6-pro')
+  assert.equal(mimoConfig.modelMappings?.['MiMo-V2.6-Flash'], 'mimo-v2.6-flash')
   assert.equal(mimoConfig.modelMappings?.['MiMo-V2.5-Pro'], 'mimo-v2.5-pro')
   assert.equal(mimoConfig.modelMappings?.['MiMo-V2.5'], 'mimo-v2.5')
   assert.equal(mimoConfig.modelMappings?.['MiMo-V2-Flash'], 'mimo-v2-flash')

@@ -22,6 +22,8 @@ export const qwenAiConfig: BuiltinProviderConfig = {
     Version: '0.2.35',
   },
   supportedModels: [
+    'Qwen3.8-Max',
+    'Qwen3.7-Plus',
     'Qwen3.7-Max',
     'Qwen3.6-Plus',
     'Qwen3.6-35B-A3B',
@@ -29,6 +31,8 @@ export const qwenAiConfig: BuiltinProviderConfig = {
     'Qwen3-Coder',
   ],
   modelMappings: {
+    'Qwen3.8-Max': 'qwen3.8-max',
+    'Qwen3.7-Plus': 'qwen3.7-plus',
     'Qwen3.7-Max': 'qwen3.7-max',
     'Qwen3.6-Plus': 'qwen3.6-plus',
     'Qwen3.6-35B-A3B': 'qwen3.6-35b-a3b',

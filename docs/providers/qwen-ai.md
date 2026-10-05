@@ -14,6 +14,8 @@
 
 | 显示名称 | 实际模型 ID |
 | --- | --- |
+| Qwen3.8-Max | qwen3.8-max |
+| Qwen3.7-Plus | qwen3.7-plus |
 | Qwen3.7-Max | qwen3.7-max |
 | Qwen3.6-Plus | qwen3.6-plus |
 | Qwen3.6-35B-A3B | qwen3.6-35b-a3b |

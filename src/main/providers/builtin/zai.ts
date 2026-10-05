@@ -25,8 +25,11 @@ export const zaiConfig: BuiltinProviderConfig = {
     'X-Region': 'domestic',
   },
   enabled: true,
-  description: 'Z.ai - Free AI Chatbot powered by GLM-5.1, GLM-5, and GLM-4.7',
+  description: 'Z.ai - Free AI Chatbot powered by GLM-5.3-Flash, GLM-5.3, GLM-5.2, GLM-5.1, and GLM-4.7',
   supportedModels: [
+    'GLM-5.3-Flash',
+    'GLM-5.3',
+    'GLM-5.2',
     'GLM-5.1',
     'GLM-5-Turbo',
     'GLM-5V-Turbo',
@@ -34,6 +37,9 @@ export const zaiConfig: BuiltinProviderConfig = {
     'GLM-4.7',
   ],
   modelMappings: {
+    'GLM-5.3-Flash': 'GLM-5.3-Flash',
+    'GLM-5.3': 'GLM-5.3',
+    'GLM-5.2': 'glm-5.2',
     'GLM-5.1': 'GLM-5.1',
     'GLM-5-Turbo': 'GLM-5-Turbo',
     'GLM-5V-Turbo': 'GLM-5v-Turbo',

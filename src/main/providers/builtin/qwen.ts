@@ -16,6 +16,7 @@ export const qwenConfig: BuiltinProviderConfig = {
   enabled: true,
   description: 'Qwen AI assistant by Alibaba Cloud (www.qianwen.com)',
   supportedModels: [
+    'Qwen3.8-Max',
     'Qwen3.6',
     'Qwen3.7-Max',
     'Qwen3.5-Flash',
@@ -24,6 +25,7 @@ export const qwenConfig: BuiltinProviderConfig = {
     'Qwen3-Coder',
   ],
   modelMappings: {
+    'Qwen3.8-Max': 'Qwen3.8-Max',
     'Qwen3.6': 'Qwen',
     'Qwen3.7-Max': 'Qwen3.7-Max',
     'Qwen3.5-Flash': 'Qwen3.5-Flash',

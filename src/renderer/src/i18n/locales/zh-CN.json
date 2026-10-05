@@ -249,7 +249,7 @@
   },
   "glm": {
     "name": "GLM",
-    "description": "智谱清言 AI 助手，支持 GLM-5.1 旗舰模型、深度思考和联网搜索",
+    "description": "智谱清言 AI 助手，支持 GLM-5.3 旗舰模型、深度思考和联网搜索",
     "refreshToken": "刷新令牌",
     "refreshTokenPlaceholder": "请输入智谱清言刷新令牌",
     "refreshTokenHelp": "从智谱清言网页版获取 chatglm_refresh_token，可在浏览器开发者工具 Application -> Cookie 中找到"
@@ -293,6 +293,7 @@
     "codeMode": "代码模式",
     "codeModeDesc": "使用 Qwen-Coder 模型，专注于编程任务",
     "models": {
+      "Qwen3.8-Max": "Qwen3.8-Max",
       "Qwen3.6": "Qwen",
       "Qwen3.7-Max": "Qwen3.7-Max",
       "Qwen3.5-Flash": "Qwen3.5-Flash",
@@ -315,7 +316,7 @@
   },
   "zai": {
     "name": "Z.ai",
-    "description": "Z.ai - 免费AI聊天机器人，由 GLM-5.1、GLM-5 和 GLM-4.7 驱动",
+    "description": "Z.ai - 免费AI聊天机器人，由 GLM-5.3-Flash、GLM-5.3、GLM-5.2、GLM-5.1、GLM-5 和 GLM-4.7 驱动",
     "token": "访问令牌",
     "tokenPlaceholder": "请输入 Z.ai JWT Token",
     "tokenHelp": "从Z.ai 网页版获取token，可在浏览器开发者工具 Application -> Cookie 中找到，以\"eyJ...\"为开头"

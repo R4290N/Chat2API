@@ -29,10 +29,13 @@ export function resolveDeepSeekChatOptions(
   }
 }
 
-export type KimiScenario = 'SCENARIO_K2D5' | 'SCENARIO_K2D6'
+export type KimiScenario = 'SCENARIO_K2D5' | 'SCENARIO_K2D6' | 'SCENARIO_K3'
 
 export function resolveKimiScenario(model: string): KimiScenario {
-  return model.toLowerCase().includes('k2.6') ? 'SCENARIO_K2D6' : 'SCENARIO_K2D5'
+  const modelLower = model.toLowerCase()
+  if (modelLower.includes('k3')) return 'SCENARIO_K3'
+  if (modelLower.includes('k2.6')) return 'SCENARIO_K2D6'
+  return 'SCENARIO_K2D5'
 }
 
 export function createKimiChatPayload(options: {

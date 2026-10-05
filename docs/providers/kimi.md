@@ -12,6 +12,7 @@
 
 | 显示名称 | 实际模型 ID |
 | --- | --- |
+| Kimi-K3 | kimi-k3 |
 | Kimi-K2.6 | kimi-k2.6 |
 
 ## 适配状态
@@ -25,4 +26,4 @@
 1. 登录 `www.kimi.com`。
 2. 打开 DevTools -> Application -> Cookies，复制 `kimi-auth` 值，或复制可用 JWT/refresh token。
 3. 在供应商管理中添加 Kimi 账号，填入 `token`。
-4. 默认模型仅保留 `Kimi-K2.6`；旧的 `Kimi-K2.5` 不再作为内置默认模型。
+4. 默认模型为 `Kimi-K3` 和 `Kimi-K2.6`；旧的 `Kimi-K2.5` 不再作为内置默认模型。

@@ -30,6 +30,7 @@ const QWEN_CHAT2_API_BASE = 'https://chat2-api.qianwen.com'
 const QWEN_CHAT_SIDE_API_BASE = 'https://chat-side.qianwen.com'
 
 const MODEL_MAP: Record<string, string> = {
+  'Qwen3.8-Max': 'Qwen3.8-Max',
   'Qwen3.6': 'Qwen',
   'Qwen3.7-Max': 'Qwen3.7-Max',
   'Qwen3.5-Flash': 'Qwen3.5-Flash',

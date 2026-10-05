@@ -12,6 +12,7 @@
 
 | 显示名称 | 实际模型 ID |
 | --- | --- |
+| Qwen3.8-Max | Qwen3.8-Max |
 | Qwen3.6 | Qwen |
 | Qwen3.7-Max | Qwen3.7-Max |
 | Qwen3.5-Flash | Qwen3.5-Flash |
