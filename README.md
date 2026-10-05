@@ -166,6 +166,49 @@ For security, you can enable API Key authentication:
 3. Enter a name and description
 4. Copy the generated key
 
+### Step 6: Management API (Optional)
+
+Chat2API exposes its own management HTTP API under `/v0/management/*` on the
+same host and port as the proxy. It lets you manage the app programmatically:
+providers, accounts, API keys, sessions, statistics, configuration and proxy
+control.
+
+The Management API is **disabled by default**. To enable it:
+
+1. Go to **Settings → Management API**
+2. Toggle **Enable Management API**
+3. Copy the generated secret (it can be regenerated at any time)
+
+Every request must carry the secret:
+
+```bash
+curl -H "Authorization: Bearer <management-secret>" http://127.0.0.1:8080/v0/management/statistics
+# or
+curl -H "X-Management-Secret: <management-secret>" http://127.0.0.1:8080/v0/management/statistics
+```
+
+Main endpoints:
+
+| Endpoint                                  | Description                          |
+| ----------------------------------------- | ------------------------------------ |
+| `GET /v0/management/statistics`           | Proxy statistics                     |
+| `GET /v0/management/health`               | Health check                         |
+| `GET /v0/management/providers`            | List providers                       |
+| `GET/POST /v0/management/accounts`        | List / create accounts               |
+| `GET/POST /v0/management/api-keys`        | List / create proxy API keys         |
+| `GET/PUT /v0/management/config`           | Read / update configuration          |
+| `GET/DELETE /v0/management/sessions`      | Inspect / drop active sessions       |
+| `POST /v0/management/proxy/start`         | Start proxy (`stop`, `restart` too)  |
+
+Security notes:
+
+- Requests without a valid secret get `401`; all endpoints return `404`
+  while the API is disabled.
+- The secret grants full control over the app (providers, accounts and
+  configuration), so treat it like a password and keep it private.
+- The API is only reachable where the proxy port is reachable — keep the
+  proxy bound to `127.0.0.1` unless you intentionally expose it.
+
 ## 📸 Screenshots
 
 | Dashboard | Providers |
@@ -185,6 +228,7 @@ For security, you can enable API Key authentication:
 - **Port**: Change the proxy listening port (default: 8080)
 - **Routing Strategy**: Round Robin or Fill First
 - **Auto-start**: Launch proxy automatically on app startup
+- **Management API**: Optional HTTP API (`/v0/management/*`) guarded by a secret (see Step 6)
 - **Theme**: Light, Dark, or System preference
 - **Language**: English or Simplified Chinese
 
