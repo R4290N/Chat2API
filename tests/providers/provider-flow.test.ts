@@ -30,13 +30,19 @@ import {
 
 const root = dirname(dirname(dirname(fileURLToPath(import.meta.url))))
 
-test('DeepSeek exposes two primary models and keeps feature aliases in default mappings', () => {
-  assert.deepEqual(DEEPSEEK_PRIMARY_MODELS, ['deepseek-v4-flash', 'deepseek-v4-pro'])
+test('DeepSeek exposes current primary models and keeps feature aliases in default mappings', () => {
+  assert.deepEqual(DEEPSEEK_PRIMARY_MODELS, ['deepseek-v4.1-flash', 'deepseek-v4-flash', 'deepseek-v4-pro'])
   assert.deepEqual(deepseekConfig.supportedModels, DEEPSEEK_PRIMARY_MODELS)
   assert.deepEqual(deepseekConfig.modelMappings, {
+    'deepseek-v4.1-flash': 'deepseek-v4.1-flash',
     'deepseek-v4-flash': 'deepseek-v4-flash',
     'deepseek-v4-pro': 'deepseek-v4-pro',
   })
+
+  assert.deepEqual(
+    resolveDeepSeekChatOptions({ model: 'deepseek-v4.1-flash' }),
+    { modelType: 'default', searchEnabled: false, thinkingEnabled: false },
+  )
 
   assert.deepEqual(
     resolveDeepSeekChatOptions({ model: 'deepseek-v4-flash' }),
@@ -105,6 +111,9 @@ test('DeepSeek persisted model overrides are migrated away from old built-in ali
 
 test('DeepSeek feature aliases are seeded as global model mappings', () => {
   assert.deepEqual(Object.keys(DEFAULT_DEEPSEEK_MODEL_MAPPINGS), [
+    'deepseek-v4.1-flash-think',
+    'deepseek-v4.1-flash-search',
+    'deepseek-v4.1-flash-think-search',
     'deepseek-v4-flash-think',
     'deepseek-v4-flash-search',
     'deepseek-v4-flash-think-search',
@@ -112,6 +121,11 @@ test('DeepSeek feature aliases are seeded as global model mappings', () => {
     'deepseek-v4-pro-search',
     'deepseek-v4-pro-think-search',
   ])
+  assert.deepEqual(DEFAULT_DEEPSEEK_MODEL_MAPPINGS['deepseek-v4.1-flash-search'], {
+    requestModel: 'deepseek-v4.1-flash-search',
+    actualModel: 'deepseek-v4.1-flash',
+    preferredProviderId: 'deepseek',
+  })
   assert.deepEqual(DEFAULT_DEEPSEEK_MODEL_MAPPINGS['deepseek-v4-flash-think'], {
     requestModel: 'deepseek-v4-flash-think',
     actualModel: 'deepseek-v4-flash',
@@ -561,10 +575,12 @@ test('DeepSeek locale model labels only describe primary provider models', () =>
   const enData = JSON.parse(en)
 
   assert.deepEqual(zhData.deepseek.models, {
+    'deepseek-v4.1-flash': 'DeepSeek V4.1 Flash',
     'deepseek-v4-flash': 'DeepSeek V4 Flash',
     'deepseek-v4-pro': 'DeepSeek V4 Pro',
   })
   assert.deepEqual(enData.deepseek.models, {
+    'deepseek-v4.1-flash': 'DeepSeek V4.1 Flash',
     'deepseek-v4-flash': 'DeepSeek V4 Flash',
     'deepseek-v4-pro': 'DeepSeek V4 Pro',
   })

@@ -12,6 +12,7 @@
 
 | 显示名称 | 实际模型 ID |
 | --- | --- |
+| deepseek-v4.1-flash | deepseek-v4.1-flash |
 | deepseek-v4-flash | deepseek-v4-flash |
 | deepseek-v4-pro | deepseek-v4-pro |
 
