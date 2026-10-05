@@ -626,9 +626,8 @@ export function AddProviderDialog({
     <Tabs defaultValue="builtin" className="mt-4">
       <TabsList className="grid w-full grid-cols-2">
         <TabsTrigger value="builtin">{t('providers.builtinProviders')}</TabsTrigger>
-        <TabsTrigger value="custom" disabled className="gap-1">
+        <TabsTrigger value="custom" className="gap-1">
           {t('providers.customProviders')}
-          <span className="text-[10px] text-muted-foreground">({t('providers.customProviderNotSupported')})</span>
         </TabsTrigger>
       </TabsList>
 
