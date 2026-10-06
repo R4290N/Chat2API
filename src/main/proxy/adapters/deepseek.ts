@@ -7,12 +7,34 @@
  */
 
 import axios, { AxiosResponse } from 'axios'
+import FormData from 'form-data'
+import mime from 'mime-types'
 import { getDeepSeekHash } from '../../lib/challenge'
 import type { Account, Provider } from '../../store/types'
 import { resolveDeepSeekChatOptions } from './providerModelOptions'
 import { getProviderToolProfile } from '../toolCalling/providerProfiles'
 
 const DEEPSEEK_API_BASE = 'https://chat.deepseek.com/api'
+
+/** File upload endpoint (web UI uploads images/docs here, then references them via ref_file_ids) */
+const DEEPSEEK_UPLOAD_PATH = '/api/v0/file/upload_file'
+/** Max images per request (web UI allows more, but keep requests sane) */
+const MAX_IMAGES_PER_REQUEST = 10
+/** Max upload size (web UI default limit is 100MB) */
+const IMAGE_MAX_SIZE = 100 * 1024 * 1024
+/** File parse statuses that mean "no longer waiting" */
+const FILE_READY_STATUSES = new Set([
+  'success',
+  'succeeded',
+  'done',
+  'ok',
+  'failed',
+  'reject',
+  'rejected',
+  'empty',
+  'content_empty',
+  'content_filter',
+])
 
 const FAKE_HEADERS = {
   Accept: '*/*',
@@ -49,9 +71,16 @@ interface ChallengeResponse {
   signature: string
 }
 
+interface DeepSeekContentPart {
+  type: string
+  text?: string
+  image_url?: { url?: string }
+  file_url?: { url?: string }
+}
+
 interface DeepSeekMessage {
   role: 'user' | 'assistant' | 'system' | 'tool'
-  content: string | null
+  content: string | DeepSeekContentPart[] | null
   tool_call_id?: string
   tool_calls?: any[]
 }
@@ -257,7 +286,10 @@ export class DeepSeekAdapter {
     return bizData.challenge
   }
 
-  private async calculateChallengeAnswer(challenge: ChallengeResponse): Promise<string> {
+  private async calculateChallengeAnswer(
+    challenge: ChallengeResponse,
+    targetPath: string = '/api/v0/chat/completion'
+  ): Promise<string> {
     const { algorithm, challenge: challengeStr, salt, difficulty, expire_at, signature } = challenge
     
     if (algorithm !== 'DeepSeekHashV1') {
@@ -281,8 +313,177 @@ export class DeepSeekAdapter {
       salt,
       answer,
       signature,
-      target_path: '/api/v0/chat/completion',
+      target_path: targetPath,
     })).toString('base64')
+  }
+
+  /**
+   * Extract image URLs (OpenAI image_url content parts) from messages.
+   * Supports base64 data: URIs (Krita plugin uses these) and http(s) URLs.
+   */
+  private extractImageUrls(messages: DeepSeekMessage[]): string[] {
+    const urls: string[] = []
+    for (const message of messages) {
+      if (!Array.isArray(message.content)) continue
+      for (const part of message.content) {
+        if (part && typeof part === 'object' && part.type === 'image_url') {
+          const url = part.image_url?.url
+          if (typeof url === 'string' && url.length > 0) {
+            urls.push(url)
+          }
+        }
+      }
+    }
+    return urls
+  }
+
+  /**
+   * Upload an image using the web UI flow:
+   *   POST /api/v0/file/upload_file (multipart "file" + per-path PoW challenge)
+   *   -> biz_data.id -> referenced as ref_file_ids in chat/completion.
+   */
+  private async uploadImage(
+    imageUrl: string,
+    options: { modelType: string; thinkingEnabled: boolean }
+  ): Promise<string> {
+    const token = await this.acquireToken()
+
+    let buffer: Buffer
+    let filename: string
+    let mimeType: string
+
+    if (imageUrl.startsWith('data:')) {
+      const match = imageUrl.match(/^data:([^;,]+)?(;base64)?,/)
+      if (!match || !match[2]) {
+        throw new Error('DeepSeek image upload: only base64 data URIs are supported')
+      }
+      mimeType = match[1] || 'image/png'
+      buffer = Buffer.from(imageUrl.slice(match[0].length), 'base64')
+      const ext = mime.extension(mimeType) || 'png'
+      filename = `image-${uuid().slice(0, 8)}.${ext}`
+    } else if (/^https?:\/\//i.test(imageUrl)) {
+      const download = await axios.get(imageUrl, {
+        responseType: 'arraybuffer',
+        maxContentLength: IMAGE_MAX_SIZE,
+        timeout: 60000,
+        validateStatus: () => true,
+      })
+      if (download.status !== 200) {
+        throw new Error(`DeepSeek image upload: failed to download image (HTTP ${download.status})`)
+      }
+      buffer = Buffer.from(download.data)
+      mimeType = String(download.headers['content-type'] || '').split(';')[0] || 'image/png'
+      const ext = mime.extension(mimeType) || 'png'
+      filename = `image-${uuid().slice(0, 8)}.${ext}`
+    } else {
+      throw new Error('DeepSeek image upload: unsupported image URL scheme')
+    }
+
+    if (buffer.length === 0) {
+      throw new Error('DeepSeek image upload: empty image data')
+    }
+    if (buffer.length > IMAGE_MAX_SIZE) {
+      throw new Error('DeepSeek image upload: image exceeds 100MB limit')
+    }
+
+    const formData = new FormData()
+    formData.append('file', buffer, { filename, contentType: mimeType })
+
+    // The upload path requires its own PoW challenge (same as the web UI does)
+    const challenge = await this.getChallenge(DEEPSEEK_UPLOAD_PATH)
+    const powAnswer = await this.calculateChallengeAnswer(challenge, DEEPSEEK_UPLOAD_PATH)
+
+    console.log('[DeepSeek] Uploading image:', filename, `${buffer.length} bytes`, 'modelType:', options.modelType)
+
+    // NB: DEEPSEEK_API_BASE already contains /api, so the URL path is /v0/... here,
+    // while DEEPSEEK_UPLOAD_PATH keeps the full /api/v0/... form for the PoW target.
+    const result = await axios.post(`${DEEPSEEK_API_BASE}/v0/file/upload_file`, formData, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+        ...FAKE_HEADERS,
+        Cookie: generateCookie(),
+        'X-Ds-Pow-Response': powAnswer,
+        'x-thinking-enabled': options.thinkingEnabled ? '1' : '0',
+        'x-model-type': options.modelType,
+        'x-file-size': String(buffer.length),
+        ...formData.getHeaders(),
+      },
+      maxBodyLength: IMAGE_MAX_SIZE,
+      timeout: 120000,
+      validateStatus: () => true,
+    })
+
+    if (result.status !== 200) {
+      throw new Error(`DeepSeek image upload failed: HTTP ${result.status}`)
+    }
+
+    // Some responses come back as text; log the raw shape for diagnostics
+    const rawBody = typeof result.data === 'string' ? result.data : JSON.stringify(result.data)
+    console.log(
+      '[DeepSeek] Upload response:',
+      result.status,
+      String(result.headers['content-type'] || ''),
+      rawBody?.slice(0, 600)
+    )
+
+    // Response shape: { code: 0, data: { biz_code: 0, biz_data: { id, status, ... } } }
+    const biz = result.data?.data ?? result.data
+    const bizCode = biz?.biz_code
+    const bizData = biz?.biz_data
+    if (bizCode !== 0 || !bizData?.id) {
+      const message = biz?.biz_msg || result.data?.msg || result.data?.message || 'unknown error'
+      throw new Error(`DeepSeek image upload failed: ${message} (biz_code: ${bizCode})`)
+    }
+
+    const fileId = String(bizData.id)
+    console.log('[DeepSeek] Image uploaded, file id:', fileId, 'status:', bizData.status)
+
+    await this.waitForFileReady(fileId, token)
+    return fileId
+  }
+
+  /**
+   * Best-effort wait until the uploaded file finishes server-side parsing.
+   * Images are usually ready immediately after upload.
+   */
+  private async waitForFileReady(fileId: string, token: string): Promise<void> {
+    const deadline = Date.now() + 15000
+    let lastStatus: unknown = undefined
+
+    while (Date.now() < deadline) {
+      try {
+        const result = await axios.get(`${DEEPSEEK_API_BASE}/v0/file/fetch_files`, {
+          params: { file_ids: fileId },
+          headers: {
+            Authorization: `Bearer ${token}`,
+            ...FAKE_HEADERS,
+          },
+          timeout: 10000,
+          validateStatus: () => true,
+        })
+        const files = result.data?.data?.biz_data?.files
+        const status = Array.isArray(files) ? files[0]?.status : undefined
+        lastStatus = status
+        if (status === undefined || status === null) {
+          return
+        }
+        if (typeof status !== 'string') {
+          return
+        }
+        if (FILE_READY_STATUSES.has(status.toLowerCase())) {
+          return
+        }
+        await new Promise((resolve) => setTimeout(resolve, 800))
+      } catch (error) {
+        console.warn(
+          '[DeepSeek] File status check failed, proceeding:',
+          error instanceof Error ? error.message : error
+        )
+        return
+      }
+    }
+
+    console.log('[DeepSeek] File still not ready after wait, proceeding. status:', lastStatus)
   }
 
   private messagesToPrompt(messages: DeepSeekMessage[], isMultiTurn: boolean = false): string {
@@ -396,6 +597,24 @@ export class DeepSeekAdapter {
       console.log('[DeepSeek] Reasoning mode enabled, effort:', request.reasoning_effort)
     }
 
+    // Vision: upload attached images first, then reference them via ref_file_ids
+    // (this is exactly how the web client sends images to the model)
+    const imageUrls = this.extractImageUrls(messages)
+    let refFileIds: string[] = []
+    if (imageUrls.length > 0) {
+      const toUpload = imageUrls.slice(0, MAX_IMAGES_PER_REQUEST)
+      if (imageUrls.length > MAX_IMAGES_PER_REQUEST) {
+        console.warn(
+          `[DeepSeek] ${imageUrls.length} images in request, uploading first ${MAX_IMAGES_PER_REQUEST}`
+        )
+      }
+      for (const url of toUpload) {
+        const fileId = await this.uploadImage(url, { modelType, thinkingEnabled })
+        refFileIds.push(fileId)
+      }
+      console.log('[DeepSeek] Attached files to request:', refFileIds.join(', '))
+    }
+
     const response = await axios.post(
       `${DEEPSEEK_API_BASE}/v0/chat/completion`,
       {
@@ -403,7 +622,7 @@ export class DeepSeekAdapter {
         parent_message_id: null,
         prompt,
         model_type: modelType,
-        ref_file_ids: [],
+        ref_file_ids: refFileIds,
         search_enabled: searchEnabled,
         thinking_enabled: thinkingEnabled,
         preempt: false,
