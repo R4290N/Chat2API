@@ -16,7 +16,7 @@ import {
   buildChromiumIdentity,
   configureFingerprint,
   type BrowserFingerprint,
-} from './providers/fingerprint'
+} from './providers/fingerprint.ts'
 
 const CHROME_VERSION_KEYS: Array<[string, string]> = [
   ['HKLM', 'SOFTWARE\\Google\\Chrome\\BLBeacon'],
