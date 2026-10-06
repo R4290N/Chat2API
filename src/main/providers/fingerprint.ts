@@ -1,25 +1,87 @@
 /**
  * Browser fingerprint shared by every request that talks to chat.deepseek.com.
  *
- * Each part of the app used to keep its own copy of these headers, and the
- * copies drifted apart (Chrome 134/145/148, macOS vs Windows, zh_CN vs
- * zh-CN). The server sees a single client, so mismatched copies are a
- * scripting tell. All DeepSeek-facing code must import the values from here
- * instead of keeping local copies.
+ * The defaults below describe "Chrome 148 on Windows with a Russian locale"
+ * and act only as a fallback. At startup the main process detects this
+ * machine's real browser (default browser + its version from the registry,
+ * system language) and applies it via configureFingerprint(), so the
+ * emulated client matches the browser that actually runs on this machine
+ * and never goes stale.
+ *
+ * Keep this module free of electron/node imports: it is loaded from shared
+ * provider config code.
  */
 
-/** Windows 10/11 UA matching BROWSER_SEC_CH_UA below. */
-export const BROWSER_UA =
-  'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
+export interface BrowserFingerprint {
+  /** Full User-Agent string. */
+  userAgent: string
+  /** sec-ch-ua value; empty when the browser sends no client hints (e.g. Firefox). */
+  secChUa: string
+  /** Accept-Language value. */
+  acceptLanguage: string
+  /** DeepSeek X-Client-Locale, e.g. "ru_RU". */
+  locale: string
+}
 
-/** sec-ch-ua value Chrome 148 actually sends (GREASE brand last). */
-export const BROWSER_SEC_CH_UA = '"Chromium";v="148", "Google Chrome";v="148", "Not-A.Brand";v="24"'
+const DEFAULT_FINGERPRINT: BrowserFingerprint = {
+  userAgent:
+    'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36',
+  secChUa: '"Chromium";v="148", "Google Chrome";v="148", "Not-A.Brand";v="24"',
+  acceptLanguage: 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7',
+  locale: 'ru_RU',
+}
 
-/** Default Accept-Language of a Russian Chrome install. */
-export const BROWSER_ACCEPT_LANGUAGE = 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7'
+let currentFingerprint: BrowserFingerprint = { ...DEFAULT_FINGERPRINT }
 
-/** Locale reported to DeepSeek; must stay consistent with Accept-Language. */
-export const DEEPSEEK_LOCALE = 'ru_RU'
+/** Applies values detected from this machine; omitted fields keep their defaults. */
+export function configureFingerprint(overrides: Partial<BrowserFingerprint>): void {
+  currentFingerprint = { ...currentFingerprint, ...overrides }
+}
+
+/** Snapshot of the fingerprint used for outgoing requests. */
+export function getBrowserFingerprint(): BrowserFingerprint {
+  return { ...currentFingerprint }
+}
+
+/**
+ * Builds Accept-Language Chrome-style for a BCP-47 locale:
+ * ru-RU -> "ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7",
+ * en-US -> "en-US,en;q=0.9".
+ */
+export function buildAcceptLanguage(locale: string): string {
+  const primary = locale || 'en-US'
+  const base = primary.split('-')[0]
+  const parts = [primary]
+  if (base && base !== primary) {
+    parts.push(`${base};q=0.9`)
+  }
+  if (base !== 'en') {
+    parts.push('en-US;q=0.8', 'en;q=0.7')
+  }
+  return parts.join(',')
+}
+
+/**
+ * User-Agent + sec-ch-ua for a Chromium browser with the given full version
+ * (e.g. "154.0.8037.93"). Edge appends its own token to the UA.
+ */
+export function buildChromiumIdentity(
+  browser: 'chrome' | 'edge',
+  version: string
+): { userAgent: string; secChUa: string } {
+  const major = version.split('.')[0]
+  const userAgent = `Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/${major}.0.0.0 Safari/537.36`
+  if (browser === 'edge') {
+    return {
+      userAgent: `${userAgent} Edg/${version}`,
+      secChUa: `"Chromium";v="${major}", "Microsoft Edge";v="${major}", "Not-A.Brand";v="24"`,
+    }
+  }
+  return {
+    userAgent,
+    secChUa: `"Chromium";v="${major}", "Google Chrome";v="${major}", "Not-A.Brand";v="24"`,
+  }
+}
 
 /**
  * Seconds east of UTC, the unit DeepSeek uses (28800 for UTC+8).
@@ -31,23 +93,27 @@ export function timezoneOffsetSeconds(): string {
 
 /** Complete browser-lookalike header set for chat.deepseek.com API calls. */
 export function deepSeekBrowserHeaders(): Record<string, string> {
-  return {
+  const fingerprint = currentFingerprint
+  const headers: Record<string, string> = {
     Accept: '*/*',
     'Accept-Encoding': 'gzip, deflate, br, zstd',
-    'Accept-Language': BROWSER_ACCEPT_LANGUAGE,
+    'Accept-Language': fingerprint.acceptLanguage,
     Origin: 'https://chat.deepseek.com',
     Referer: 'https://chat.deepseek.com/',
-    'Sec-Ch-Ua': BROWSER_SEC_CH_UA,
-    'Sec-Ch-Ua-Mobile': '?0',
-    'Sec-Ch-Ua-Platform': '"Windows"',
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-origin',
-    'User-Agent': BROWSER_UA,
+    'User-Agent': fingerprint.userAgent,
     'X-App-Version': '2.0.0',
-    'X-Client-Locale': DEEPSEEK_LOCALE,
+    'X-Client-Locale': fingerprint.locale,
     'X-Client-Platform': 'web',
     'x-Client-Timezone-Offset': timezoneOffsetSeconds(),
     'X-Client-Version': '2.0.0',
   }
+  if (fingerprint.secChUa) {
+    headers['Sec-Ch-Ua'] = fingerprint.secChUa
+    headers['Sec-Ch-Ua-Mobile'] = '?0'
+    headers['Sec-Ch-Ua-Platform'] = '"Windows"'
+  }
+  return headers
 }

@@ -37,8 +37,6 @@ const FILE_READY_STATUSES = new Set([
   'content_filter',
 ])
 
-const FAKE_HEADERS = deepSeekBrowserHeaders()
-
 interface TokenInfo {
   accessToken: string
   refreshToken: string
@@ -142,7 +140,7 @@ export class DeepSeekAdapter {
     const result = await axios.get(`${DEEPSEEK_API_BASE}/v0/users/current`, {
       headers: {
         Authorization: `Bearer ${this.token}`,
-        ...FAKE_HEADERS,
+        ...deepSeekBrowserHeaders(),
       },
       timeout: 15000,
       validateStatus: () => true,
@@ -191,7 +189,7 @@ export class DeepSeekAdapter {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          ...FAKE_HEADERS,
+          ...deepSeekBrowserHeaders(),
           Cookie: generateCookie(),
         },
         timeout: 15000,
@@ -222,7 +220,7 @@ export class DeepSeekAdapter {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            ...FAKE_HEADERS,
+            ...deepSeekBrowserHeaders(),
           },
           timeout: 15000,
           validateStatus: () => true,
@@ -253,7 +251,7 @@ export class DeepSeekAdapter {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          ...FAKE_HEADERS,
+          ...deepSeekBrowserHeaders(),
         },
         timeout: 15000,
         validateStatus: () => true,
@@ -383,7 +381,7 @@ export class DeepSeekAdapter {
     const result = await axios.post(`${DEEPSEEK_API_BASE}/v0/file/upload_file`, formData, {
       headers: {
         Authorization: `Bearer ${token}`,
-        ...FAKE_HEADERS,
+        ...deepSeekBrowserHeaders(),
         Cookie: generateCookie(),
         'X-Ds-Pow-Response': powAnswer,
         'x-thinking-enabled': options.thinkingEnabled ? '1' : '0',
@@ -439,7 +437,7 @@ export class DeepSeekAdapter {
           params: { file_ids: fileId },
           headers: {
             Authorization: `Bearer ${token}`,
-            ...FAKE_HEADERS,
+            ...deepSeekBrowserHeaders(),
           },
           timeout: 10000,
           validateStatus: () => true,
@@ -613,7 +611,7 @@ export class DeepSeekAdapter {
       {
         headers: {
           Authorization: `Bearer ${token}`,
-          ...FAKE_HEADERS,
+          ...deepSeekBrowserHeaders(),
           Referer: `https://chat.deepseek.com/a/chat/s/${sessionId}`,
           Cookie: generateCookie(),
           'X-Ds-Pow-Response': challengeAnswer,
@@ -636,7 +634,7 @@ export class DeepSeekAdapter {
         {
           headers: {
             Authorization: `Bearer ${token}`,
-            ...FAKE_HEADERS,
+            ...deepSeekBrowserHeaders(),
           },
           timeout: 30000,
           validateStatus: () => true,

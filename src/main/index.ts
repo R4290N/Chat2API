@@ -5,6 +5,7 @@ import { createTrayManager, TrayManager } from './tray/TrayManager'
 import { registerIpcHandlers } from './ipc/handlers'
 import { UpdaterManager } from './updater'
 import { storeManager } from './store/store'
+import { initSystemFingerprint } from './systemFingerprint'
 
 // Prevent uncaught exceptions from crashing the app
 process.on('uncaughtException', (error) => {
@@ -56,6 +57,9 @@ if (!gotTheLock) {
 let trayManager: TrayManager | null = null
 
 async function initializeApp(): Promise<void> {
+  // Detect the real browser identity before the proxy starts serving requests.
+  initSystemFingerprint()
+
   app.on('ready', async () => {
     await setupApp()
   })

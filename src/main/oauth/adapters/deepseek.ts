@@ -18,10 +18,12 @@ import {
 
 const DEEPSEEK_API_BASE = 'https://chat.deepseek.com'
 
-const FAKE_HEADERS = {
-  Pragma: 'no-cache',
-  Priority: 'u=1, i',
-  ...deepSeekBrowserHeaders(),
+function oauthFakeHeaders(): Record<string, string> {
+  return {
+    Pragma: 'no-cache',
+    Priority: 'u=1, i',
+    ...deepSeekBrowserHeaders(),
+  }
 }
 
 export class DeepSeekAdapter extends BaseOAuthAdapter {
@@ -129,7 +131,7 @@ export class DeepSeekAdapter extends BaseOAuthAdapter {
       const response = await axios.get(`${DEEPSEEK_API_BASE}/api/v0/users/current`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          ...FAKE_HEADERS,
+          ...oauthFakeHeaders(),
         },
         timeout: 15000,
         validateStatus: () => true,
@@ -186,7 +188,7 @@ export class DeepSeekAdapter extends BaseOAuthAdapter {
       const response = await axios.get(`${DEEPSEEK_API_BASE}/api/v0/users/current`, {
         headers: {
           Authorization: `Bearer ${token}`,
-          ...FAKE_HEADERS,
+          ...oauthFakeHeaders(),
         },
         timeout: 15000,
         validateStatus: () => true,
