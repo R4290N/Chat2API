@@ -1,11 +1,19 @@
 import test from 'node:test'
 import assert from 'node:assert/strict'
 import {
+  browserAcceptLanguage,
+  browserLanguage,
+  browserLanguageTag,
+  browserLocale,
+  browserUserAgent,
   buildAcceptLanguage,
   buildChromiumIdentity,
   configureFingerprint,
   deepSeekBrowserHeaders,
   getBrowserFingerprint,
+  localDateTimeString,
+  systemTimeZoneId,
+  timezoneOffsetMinutes,
 } from '../../src/main/providers/fingerprint.ts'
 
 test('default fingerprint is Chrome 148 on Windows with Russian locale', () => {
@@ -42,6 +50,25 @@ test('buildChromiumIdentity builds chrome and edge identities', () => {
   const edge = buildChromiumIdentity('edge', '154.0.1807.56')
   assert.match(edge.userAgent, /Chrome\/154\.0\.0\.0 Safari\/537\.36 Edg\/154\.0\.1807\.56$/)
   assert.equal(edge.secChUa, '"Chromium";v="154", "Microsoft Edge";v="154", "Not-A.Brand";v="24"')
+})
+
+test('identity helpers expose locale, language and timezone of the machine', () => {
+  // Defaults are Russian/Windows; the configureFingerprint test below
+  // replaces them, so this one must stay before it.
+  assert.equal(browserLocale(), 'ru_RU')
+  assert.equal(browserLanguageTag(), 'ru-RU')
+  assert.equal(browserLanguage(), 'ru')
+  assert.equal(browserAcceptLanguage(), 'ru-RU,ru;q=0.9,en-US;q=0.8,en;q=0.7')
+  assert.equal(browserUserAgent(), getBrowserFingerprint().userAgent)
+
+  // Real system values: an IANA id (Etc/UTC on CI), a numeric minute offset
+  // and Date.toString() without the "(zone name)" tail.
+  assert.match(systemTimeZoneId(), /^[A-Za-z_+-]+(\/[A-Za-z_+-]+)+$/)
+  assert.match(timezoneOffsetMinutes(), /^-?\d+$/)
+  assert.match(
+    localDateTimeString(),
+    /^[A-Z][a-z]{2} [A-Z][a-z]{2} \d{2} \d{4} \d{2}:\d{2}:\d{2} GMT[+-]\d{4}$/
+  )
 })
 
 test('configureFingerprint applies detected overrides to later requests', () => {

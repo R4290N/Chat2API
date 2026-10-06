@@ -14,6 +14,7 @@ import {
   AdapterConfig,
   OAuthCallbackData,
 } from '../types'
+import { browserAcceptLanguage, browserSecChUa, browserUserAgent } from '../../providers/fingerprint'
 
 const QWEN_API_BASE = 'https://chat2-api.qianwen.com'
 const QWEN_WEB_BASE = 'https://www.qianwen.com'
@@ -21,18 +22,18 @@ const QWEN_WEB_BASE = 'https://www.qianwen.com'
 const DEFAULT_HEADERS = {
   Accept: 'application/json, text/plain, */*',
   'Accept-Encoding': 'gzip, deflate, br, zstd',
-  'Accept-Language': 'zh-CN,zh;q=0.9',
+  'Accept-Language': browserAcceptLanguage(),
   'Cache-Control': 'no-cache',
   Origin: QWEN_WEB_BASE,
   Pragma: 'no-cache',
-  'Sec-Ch-Ua': '"Chromium";v="145", "Not(A:Brand";v="24", "Google Chrome";v="145"',
+  'Sec-Ch-Ua': browserSecChUa(),
   'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"macOS"',
+  'Sec-Ch-Ua-Platform': '"Windows"',
   'Sec-Fetch-Dest': 'empty',
   'Sec-Fetch-Mode': 'cors',
   'Sec-Fetch-Site': 'same-site',
   Referer: `${QWEN_WEB_BASE}/`,
-  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+  'User-Agent': browserUserAgent(),
 }
 
 export class QwenAdapter extends BaseOAuthAdapter {

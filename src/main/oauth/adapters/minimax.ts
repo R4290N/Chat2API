@@ -15,23 +15,30 @@ import {
   AdapterConfig,
   OAuthCallbackData,
 } from '../types'
+import {
+  browserAcceptLanguage,
+  browserLanguage,
+  browserLanguageTag,
+  browserSecChUa,
+  browserUserAgent,
+} from '../../providers/fingerprint'
 
 const MINIMAX_API_BASE = 'https://agent.minimaxi.com'
 
 const FAKE_HEADERS = {
   Accept: 'application/json, text/plain, */*',
   'Accept-Encoding': 'gzip, deflate, br, zstd',
-  'Accept-Language': 'zh-CN,zh;q=0.9',
+  'Accept-Language': browserAcceptLanguage(),
   'Cache-Control': 'no-cache',
   Origin: MINIMAX_API_BASE,
   Pragma: 'no-cache',
-  'Sec-Ch-Ua': '"Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"',
+  'Sec-Ch-Ua': browserSecChUa(),
   'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"macOS"',
+  'Sec-Ch-Ua-Platform': '"Windows"',
   'Sec-Fetch-Dest': 'empty',
   'Sec-Fetch-Mode': 'cors',
   'Sec-Fetch-Site': 'same-origin',
-  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+  'User-Agent': browserUserAgent(),
 }
 
 const FAKE_USER_DATA: Record<string, any> = {
@@ -41,17 +48,17 @@ const FAKE_USER_DATA: Record<string, any> = {
   version_code: '22201',
   uuid: null,
   device_id: null,
-  os_name: 'Mac',
+  os_name: 'Windows',
   browser_name: 'chrome',
   device_memory: 8,
   cpu_core_num: 11,
-  browser_language: 'zh-CN',
-  browser_platform: 'MacIntel',
+  browser_language: browserLanguageTag(),
+  browser_platform: 'Win32',
   user_id: null,
   screen_width: 1920,
   screen_height: 1080,
   unix: null,
-  lang: 'zh',
+  lang: browserLanguage(),
   token: null,
 }
 

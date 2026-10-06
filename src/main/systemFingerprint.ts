@@ -105,3 +105,8 @@ export function initSystemFingerprint(): void {
     console.error('[Fingerprint] detection failed, using defaults:', error)
   }
 }
+
+// Detect at import time: the app entry imports this module first, so every
+// provider module evaluated afterwards builds its module-level header objects
+// with the detected identity. The call is idempotent.
+initSystemFingerprint()

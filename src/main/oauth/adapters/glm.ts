@@ -14,20 +14,21 @@ import {
   AdapterConfig,
   OAuthCallbackData,
 } from '../types'
+import { browserAcceptLanguage, browserLanguage, browserSecChUa, browserUserAgent } from '../../providers/fingerprint'
 
 const GLM_API_BASE = 'https://chatglm.cn'
 
 const FAKE_HEADERS = {
   Accept: 'text/event-stream',
   'Accept-Encoding': 'gzip, deflate, br, zstd',
-  'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+  'Accept-Language': browserAcceptLanguage(),
   'App-Name': 'chatglm',
   'Cache-Control': 'no-cache',
   'Content-Type': 'application/json',
   Origin: GLM_API_BASE,
   Pragma: 'no-cache',
   Priority: 'u=1, i',
-  'Sec-Ch-Ua': '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+  'Sec-Ch-Ua': browserSecChUa(),
   'Sec-Ch-Ua-Mobile': '?0',
   'Sec-Ch-Ua-Platform': '"Windows"',
   'Sec-Fetch-Dest': 'empty',
@@ -38,8 +39,8 @@ const FAKE_HEADERS = {
   'X-App-Version': '0.0.1',
   'X-Device-Brand': '',
   'X-Device-Model': '',
-  'X-Lang': 'zh',
-  'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+  'X-Lang': browserLanguage(),
+  'User-Agent': browserUserAgent(),
 }
 
 const SIGN_SECRET = '8a1317a7468aa3ad86e997d08f3f31cb'

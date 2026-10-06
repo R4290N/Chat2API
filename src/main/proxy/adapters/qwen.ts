@@ -39,20 +39,22 @@ const MODEL_MAP: Record<string, string> = {
   'Qwen3-Coder': 'Qwen3-Coder',
 }
 
+import { browserAcceptLanguage, browserLocale, browserSecChUa, browserUserAgent, systemTimeZoneId } from '../../providers/fingerprint'
+
 const DEFAULT_HEADERS = {
   Accept: 'application/json, text/event-stream, text/plain, */*',
-  'Accept-Language': 'zh-CN,zh;q=0.9',
+  'Accept-Language': browserAcceptLanguage(),
   'Cache-Control': 'no-cache',
   Origin: 'https://www.qianwen.com',
   Pragma: 'no-cache',
-  'Sec-Ch-Ua': '"Chromium";v="145", "Not(A:Brand";v="24", "Google Chrome";v="145"',
+  'Sec-Ch-Ua': browserSecChUa(),
   'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"macOS"',
+  'Sec-Ch-Ua-Platform': '"Windows"',
   'Sec-Fetch-Dest': 'empty',
   'Sec-Fetch-Mode': 'cors',
   'Sec-Fetch-Site': 'same-site',
   Referer: 'https://www.qianwen.com/',
-  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+  'User-Agent': browserUserAgent(),
 }
 
 interface QwenMessage {
@@ -155,8 +157,8 @@ export class QwenAdapter {
       fr: 'pc',
       pr: 'qwen',
       ut: '5b68c267-cd8e-fd0e-148a-18345bc9a104',
-      la: 'zh_CN',
-      tz: 'Asia/Shanghai',
+      la: browserLocale(),
+      tz: systemTimeZoneId(),
       wv: '1',
       ve: '1',
       ...extra,

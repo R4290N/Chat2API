@@ -13,21 +13,22 @@ import {
   AdapterConfig,
   OAuthCallbackData,
 } from '../types'
+import { browserAcceptLanguage, browserSecChUa, browserUserAgent } from '../../providers/fingerprint'
 
 const ZAI_API_BASE = 'https://chat.z.ai'
 const X_FE_VERSION = 'prod-fe-1.1.37'
-const ZAI_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
+const ZAI_USER_AGENT = browserUserAgent()
 
 const FAKE_HEADERS = {
   Accept: '*/*',
   'Accept-Encoding': 'gzip, deflate, br, zstd',
-  'Accept-Language': 'zh-CN',
+  'Accept-Language': browserAcceptLanguage(),
   'Cache-Control': 'no-cache',
   Origin: ZAI_API_BASE,
   Pragma: 'no-cache',
-  'Sec-Ch-Ua': '"Not/A)Brand";v="99", "Chromium";v="148"',
+  'Sec-Ch-Ua': browserSecChUa(),
   'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"macOS"',
+  'Sec-Ch-Ua-Platform': '"Windows"',
   'Sec-Fetch-Dest': 'empty',
   'Sec-Fetch-Mode': 'cors',
   'Sec-Fetch-Site': 'same-origin',

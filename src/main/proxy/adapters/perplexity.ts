@@ -2,22 +2,24 @@ import { net } from 'electron'
 import { Readable } from 'stream'
 import { Account, Provider } from '../store/types'
 
+import { browserAcceptLanguage, browserLanguageTag, browserSecChUa, browserUserAgent, systemTimeZoneId } from '../../providers/fingerprint'
+
 const PERPLEXITY_URL = 'https://www.perplexity.ai'
 const QUERY_ENDPOINT = `${PERPLEXITY_URL}/rest/sse/perplexity_ask`
 
 const FAKE_HEADERS: Record<string, string> = {
   'Accept': 'text/event-stream',
   'Accept-Encoding': 'gzip, deflate, br, zstd',
-  'Accept-Language': 'en-US,en;q=0.9',
+  'Accept-Language': browserAcceptLanguage(),
   'Cache-Control': 'no-cache',
   'Origin': PERPLEXITY_URL,
-  'Sec-Ch-Ua': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+  'Sec-Ch-Ua': browserSecChUa(),
   'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"macOS"',
+  'Sec-Ch-Ua-Platform': '"Windows"',
   'Sec-Fetch-Dest': 'empty',
   'Sec-Fetch-Mode': 'cors',
   'Sec-Fetch-Site': 'same-origin',
-  'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+  'User-Agent': browserUserAgent(),
 }
 
 interface PerplexityMessage {
@@ -221,8 +223,8 @@ export class PerplexityAdapter {
 
     const baseParams: any = {
       attachments: [],
-      language: 'en-US',
-      timezone: 'America/Los_Angeles',
+      language: browserLanguageTag(),
+      timezone: systemTimeZoneId(),
       search_focus: 'internet',
       sources: ['web'],
       search_recency_filter: null,
@@ -433,15 +435,15 @@ export class PerplexityAdapter {
       const headers: Record<string, string> = {
         'Accept': '*/*',
         'Accept-Encoding': 'gzip, deflate, br, zstd',
-        'Accept-Language': 'en-US,en;q=0.9',
+        'Accept-Language': browserAcceptLanguage(),
         'Content-Type': 'application/json',
         'Cookie': this.buildCookieHeader(),
         'Origin': PERPLEXITY_URL,
         'Referer': `${PERPLEXITY_URL}/`,
-        'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-        'sec-ch-ua': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+        'User-Agent': browserUserAgent(),
+        'sec-ch-ua': browserSecChUa(),
         'sec-ch-ua-mobile': '?0',
-        'sec-ch-ua-platform': '"macOS"',
+        'sec-ch-ua-platform': '"Windows"',
         'sec-fetch-dest': 'empty',
         'sec-fetch-mode': 'cors',
         'sec-fetch-site': 'same-origin',
@@ -507,15 +509,15 @@ export class PerplexityAdapter {
     const headers: Record<string, string> = {
       'Accept': '*/*',
       'Accept-Encoding': 'gzip, deflate, br, zstd',
-      'Accept-Language': 'en-US,en;q=0.9',
+      'Accept-Language': browserAcceptLanguage(),
       'Content-Type': 'application/json',
       'Cookie': this.buildCookieHeader(),
       'Origin': PERPLEXITY_URL,
       'Referer': `${PERPLEXITY_URL}/library`,
-      'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
-      'sec-ch-ua': '"Chromium";v="134", "Not:A-Brand";v="24", "Google Chrome";v="134"',
+      'User-Agent': browserUserAgent(),
+      'sec-ch-ua': browserSecChUa(),
       'sec-ch-ua-mobile': '?0',
-      'sec-ch-ua-platform': '"macOS"',
+      'sec-ch-ua-platform': '"Windows"',
       'sec-fetch-dest': 'empty',
       'sec-fetch-mode': 'cors',
       'sec-fetch-site': 'same-origin',

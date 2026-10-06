@@ -1,4 +1,5 @@
 import type { BuiltinProviderConfig } from '../../store/types'
+import { browserAcceptLanguage, browserLanguage, browserSecChUa } from '../fingerprint.ts'
 
 export const glmConfig: BuiltinProviderConfig = {
   id: 'glm',
@@ -11,13 +12,13 @@ export const glmConfig: BuiltinProviderConfig = {
     'Content-Type': 'application/json',
     'Accept': 'text/event-stream',
     'Accept-Encoding': 'gzip, deflate, br, zstd',
-    'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+    'Accept-Language': browserAcceptLanguage(),
     'App-Name': 'chatglm',
     'Cache-Control': 'no-cache',
     'Origin': 'https://chatglm.cn',
     'Pragma': 'no-cache',
     'Priority': 'u=1, i',
-    'Sec-Ch-Ua': '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+    'Sec-Ch-Ua': browserSecChUa(),
     'Sec-Ch-Ua-Mobile': '?0',
     'Sec-Ch-Ua-Platform': '"Windows"',
     'Sec-Fetch-Dest': 'empty',
@@ -28,7 +29,7 @@ export const glmConfig: BuiltinProviderConfig = {
     'X-App-Version': '0.0.1',
     'X-Device-Brand': '',
     'X-Device-Model': '',
-    'X-Lang': 'zh',
+    'X-Lang': browserLanguage(),
   },
   enabled: true,
   description: 'Zhipu Qingyan AI assistant, supports GLM-5.3 flagship model, deep thinking and video generation',

@@ -1,3 +1,7 @@
+// The system fingerprint must be detected before any provider module builds
+// its module-level header constants, so this import goes first (the module
+// runs detection on import, idempotently).
+import { initSystemFingerprint } from './systemFingerprint'
 import { app, BrowserWindow } from 'electron'
 import { join } from 'path'
 import { createWindow, getMainWindow, loadUrl, loadFile, openDevTools } from './window/manager'
@@ -5,7 +9,6 @@ import { createTrayManager, TrayManager } from './tray/TrayManager'
 import { registerIpcHandlers } from './ipc/handlers'
 import { UpdaterManager } from './updater'
 import { storeManager } from './store/store'
-import { initSystemFingerprint } from './systemFingerprint'
 
 // Prevent uncaught exceptions from crashing the app
 process.on('uncaughtException', (error) => {

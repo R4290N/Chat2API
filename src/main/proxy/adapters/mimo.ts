@@ -11,6 +11,7 @@ import type { ChatMessage } from '../types.ts'
 import { ToolStreamParser } from '../toolCalling/ToolStreamParser.ts'
 import type { ToolCallingPlan } from '../toolCalling/types.ts'
 import { getProviderToolProfile } from '../toolCalling/providerProfiles.ts'
+import { browserAcceptLanguage, browserSecChUa, browserUserAgent, systemTimeZoneId } from '../../providers/fingerprint.ts'
 
 const MIMO_API_BASE = 'https://aistudio.xiaomimimo.com'
 
@@ -346,13 +347,14 @@ export class MimoAdapter {
       Cookie: `serviceToken=${serviceToken}; userId=${userId}; xiaomichatbot_ph=${phToken}`,
       Origin: MIMO_API_BASE,
       Referer: `${MIMO_API_BASE}/`,
-      'X-Timezone': 'Asia/Shanghai',
+      'X-Timezone': systemTimeZoneId(),
+      'User-Agent': browserUserAgent(),
       Accept: '*/*',
       'Accept-Encoding': 'gzip, deflate, br, zstd',
-      'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8',
+      'Accept-Language': browserAcceptLanguage(),
       'Cache-Control': 'no-cache',
       Pragma: 'no-cache',
-      'Sec-Ch-Ua': '"Chromium";v="144", "Not(A:Brand";v="8", "Google Chrome";v="144"',
+      'Sec-Ch-Ua': browserSecChUa(),
       'Sec-Ch-Ua-Mobile': '?0',
       'Sec-Ch-Ua-Platform': '"Windows"',
       'Sec-Fetch-Dest': 'empty',

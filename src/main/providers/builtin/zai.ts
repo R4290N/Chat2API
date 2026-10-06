@@ -1,4 +1,5 @@
 import type { BuiltinProviderConfig } from '../../store/types'
+import { browserAcceptLanguage, browserSecChUa } from '../fingerprint.ts'
 
 export const zaiConfig: BuiltinProviderConfig = {
   id: 'zai',
@@ -11,13 +12,13 @@ export const zaiConfig: BuiltinProviderConfig = {
     'Content-Type': 'application/json',
     'Accept': '*/*',
     'Accept-Encoding': 'gzip, deflate, br, zstd',
-    'Accept-Language': 'zh-CN',
+    'Accept-Language': browserAcceptLanguage(),
     'Cache-Control': 'no-cache',
     'Origin': 'https://chat.z.ai',
     'Pragma': 'no-cache',
-    'Sec-Ch-Ua': '"Not/A)Brand";v="99", "Chromium";v="148"',
+    'Sec-Ch-Ua': browserSecChUa(),
     'Sec-Ch-Ua-Mobile': '?0',
-    'Sec-Ch-Ua-Platform': '"macOS"',
+    'Sec-Ch-Ua-Platform': '"Windows"',
     'Sec-Fetch-Dest': 'empty',
     'Sec-Fetch-Mode': 'cors',
     'Sec-Fetch-Site': 'same-origin',

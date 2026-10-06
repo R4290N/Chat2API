@@ -2,7 +2,7 @@ import axios, { AxiosError } from 'axios'
 import { getBuiltinProvider } from './builtin'
 import type { Provider, ProviderCheckResult, Account } from '../../shared/types'
 import type { BuiltinProviderConfig } from '../store/types'
-import { deepSeekBrowserHeaders } from './fingerprint'
+import { browserAcceptLanguage, browserLanguage, browserSecChUa, browserUserAgent, deepSeekBrowserHeaders } from './fingerprint'
 
 const CHECK_TIMEOUT = 15000
 
@@ -240,14 +240,14 @@ export class ProviderChecker {
           headers: {
             'Accept': 'text/event-stream',
             'Accept-Encoding': 'gzip, deflate, br, zstd',
-            'Accept-Language': 'zh-CN,zh;q=0.9,en;q=0.8,en-GB;q=0.7,en-US;q=0.6',
+            'Accept-Language': browserAcceptLanguage(),
             'App-Name': 'chatglm',
             'Cache-Control': 'no-cache',
             'Content-Type': 'application/json',
             'Origin': 'https://chatglm.cn',
             'Pragma': 'no-cache',
             'Priority': 'u=1, i',
-            'Sec-Ch-Ua': '"Microsoft Edge";v="143", "Chromium";v="143", "Not A(Brand";v="24"',
+            'Sec-Ch-Ua': browserSecChUa(),
             'Sec-Ch-Ua-Mobile': '?0',
             'Sec-Ch-Ua-Platform': '"Windows"',
             'Sec-Fetch-Dest': 'empty',
@@ -259,8 +259,8 @@ export class ProviderChecker {
             'X-Device-Brand': '',
             'X-Device-Model': '',
             'X-Exp-Groups': 'na_android_config:exp:NA,na_4o_config:exp:4o_A,tts_config:exp:tts_config_a,na_glm4plus_config:exp:open,mainchat_server_app:exp:A,mobile_history_daycheck:exp:a,desktop_toolbar:exp:A,chat_drawing_server:exp:A,drawing_server_cogview:exp:cogview4,app_welcome_v2:exp:A,chat_drawing_streamv2:exp:A,mainchat_rm_fc:exp:add,mainchat_dr:exp:open,chat_auto_entrance:exp:A,drawing_server_hi_dream:control:A,homepage_square:exp:close,assistant_recommend_prompt:exp:3,app_home_regular_user:exp:A,memory_common:exp:enable,mainchat_moe:exp:300,assistant_greet_user:exp:greet_user,app_welcome_personalize:exp:A,assistant_model_exp_group:exp:glm4.5,ai_wallet:exp:ai_wallet_enable',
-            'X-Lang': 'zh',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
+            'X-Lang': browserLanguage(),
+            'User-Agent': browserUserAgent(),
             Authorization: `Bearer ${refreshToken}`,
             'X-Device-Id': this.generateUUID().replace(/-/g, ''),
             'X-Nonce': sign.nonce,
@@ -434,19 +434,19 @@ export class ProviderChecker {
           headers: {
             'Accept': 'application/json, text/plain, */*',
             'Accept-Encoding': 'gzip, deflate, br, zstd',
-            'Accept-Language': 'zh-CN,zh;q=0.9',
+            'Accept-Language': browserAcceptLanguage(),
             'Cache-Control': 'no-cache',
             'Content-Type': 'application/json',
             'Origin': 'https://agent.minimaxi.com',
             'Pragma': 'no-cache',
             'Referer': 'https://agent.minimaxi.com/',
-            'Sec-Ch-Ua': '"Not:A-Brand";v="99", "Google Chrome";v="145", "Chromium";v="145"',
+            'Sec-Ch-Ua': browserSecChUa(),
             'Sec-Ch-Ua-Mobile': '?0',
-            'Sec-Ch-Ua-Platform': '"macOS"',
+            'Sec-Ch-Ua-Platform': '"Windows"',
             'Sec-Fetch-Dest': 'empty',
             'Sec-Fetch-Mode': 'cors',
             'Sec-Fetch-Site': 'same-origin',
-            'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/145.0.0.0 Safari/537.36',
+            'User-Agent': browserUserAgent(),
             'token': jwtToken,
             'x-timestamp': String(timestamp),
             'x-signature': signature,

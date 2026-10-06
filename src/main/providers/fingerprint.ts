@@ -117,3 +117,55 @@ export function deepSeekBrowserHeaders(): Record<string, string> {
   }
   return headers
 }
+
+/** User-Agent of the current fingerprint (detected from this machine). */
+export function browserUserAgent(): string {
+  return currentFingerprint.userAgent
+}
+
+/** Accept-Language of the current fingerprint. */
+export function browserAcceptLanguage(): string {
+  return currentFingerprint.acceptLanguage
+}
+
+/** sec-ch-ua of the current fingerprint ("" when the browser sends none). */
+export function browserSecChUa(): string {
+  return currentFingerprint.secChUa
+}
+
+/** Locale like "ru_RU" as used in provider payloads. */
+export function browserLocale(): string {
+  return currentFingerprint.locale
+}
+
+/** BCP-47 language tag like "ru-RU". */
+export function browserLanguageTag(): string {
+  return currentFingerprint.locale.replace(/_/g, '-')
+}
+
+/** Primary language subtag like "ru". */
+export function browserLanguage(): string {
+  return browserLanguageTag().split('-')[0]
+}
+
+/** IANA timezone id of this machine, e.g. "Europe/Astrakhan". */
+export function systemTimeZoneId(): string {
+  try {
+    return Intl.DateTimeFormat().resolvedOptions().timeZone || 'UTC'
+  } catch {
+    return 'UTC'
+  }
+}
+
+/** Signed minute offset like "-480" (UTC+8), the unit some payloads use. */
+export function timezoneOffsetMinutes(): string {
+  return String(new Date().getTimezoneOffset())
+}
+
+/**
+ * Local time like "Mon Feb 23 2026 22:06:02 GMT+0800" - Date.toString()
+ * without the trailing "(zone name)" part, matching the original header.
+ */
+export function localDateTimeString(): string {
+  return new Date().toString().replace(/\s*\([^)]*\)$/, '')
+}

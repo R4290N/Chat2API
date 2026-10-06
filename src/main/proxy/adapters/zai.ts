@@ -19,20 +19,30 @@ import {
   ToolCallState 
 } from '../utils/streamToolHandler'
 
+import {
+  browserAcceptLanguage,
+  browserLanguage,
+  browserLanguageTag,
+  browserSecChUa,
+  browserUserAgent,
+  systemTimeZoneId,
+  timezoneOffsetMinutes,
+} from '../../providers/fingerprint'
+
 const ZAI_API_BASE = 'https://chat.z.ai'
 const X_FE_VERSION = 'prod-fe-1.1.37'
-const ZAI_USER_AGENT = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/148.0.0.0 Safari/537.36'
+const ZAI_USER_AGENT = browserUserAgent()
 
 const FAKE_HEADERS = {
   Accept: '*/*',
   'Accept-Encoding': 'gzip, deflate, br, zstd',
-  'Accept-Language': 'zh-CN',
+  'Accept-Language': browserAcceptLanguage(),
   'Cache-Control': 'no-cache',
   Origin: ZAI_API_BASE,
   Pragma: 'no-cache',
-  'Sec-Ch-Ua': '"Not/A)Brand";v="99", "Chromium";v="148"',
+  'Sec-Ch-Ua': browserSecChUa(),
   'Sec-Ch-Ua-Mobile': '?0',
-  'Sec-Ch-Ua-Platform': '"macOS"',
+  'Sec-Ch-Ua-Platform': '"Windows"',
   'Sec-Fetch-Dest': 'empty',
   'Sec-Fetch-Mode': 'cors',
   'Sec-Fetch-Site': 'same-origin',
@@ -459,8 +469,8 @@ export class ZaiAdapter {
         '{{CURRENT_DATE}}': new Date().toISOString().substring(0, 10),
         '{{CURRENT_TIME}}': new Date().toISOString().substring(11, 19),
         '{{CURRENT_WEEKDAY}}': ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'][new Date().getDay()],
-        '{{CURRENT_TIMEZONE}}': 'Asia/Shanghai',
-        '{{USER_LANGUAGE}}': 'zh-CN',
+        '{{CURRENT_TIMEZONE}}': systemTimeZoneId(),
+        '{{USER_LANGUAGE}}': browserLanguageTag(),
       },
       chat_id: chatId,
       id: requestId,
@@ -491,18 +501,18 @@ export class ZaiAdapter {
       platform: 'web',
       token,
       user_agent: ZAI_USER_AGENT,
-      language: 'zh-CN',
-      languages: 'zh-CN,zh',
-      timezone: 'Asia/Shanghai',
+      language: browserLanguageTag(),
+      languages: `${browserLanguageTag()},${browserLanguage()}`,
+      timezone: systemTimeZoneId(),
       cookie_enabled: 'true',
-      screen_width: '1512',
-      screen_height: '982',
-      screen_resolution: '1512x982',
+      screen_width: '1920',
+      screen_height: '1080',
+      screen_resolution: '1920x1080',
       viewport_height: '945',
-      viewport_width: '923',
-      viewport_size: '923x945',
-      color_depth: '30',
-      pixel_ratio: '2',
+      viewport_width: '1920',
+      viewport_size: '1920x945',
+      color_depth: '24',
+      pixel_ratio: '1',
       current_url: `${ZAI_API_BASE}/c/${chatId}`,
       pathname: `/c/${chatId}`,
       search: '',
@@ -512,7 +522,7 @@ export class ZaiAdapter {
       protocol: 'https:',
       referrer: '',
       title: 'Z.ai - Free AI Chatbot & Agent powered by GLM-5 & GLM-4.7',
-      timezone_offset: '-480',
+      timezone_offset: timezoneOffsetMinutes(),
       local_time: new Date().toISOString(),
       utc_time: new Date().toUTCString(),
       is_mobile: 'false',

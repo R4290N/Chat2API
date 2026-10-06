@@ -1,4 +1,5 @@
 import type { BuiltinProviderConfig } from '../../store/types'
+import { browserUserAgent } from '../fingerprint.ts'
 
 export const perplexityConfig: BuiltinProviderConfig = {
   id: 'perplexity',
@@ -8,7 +9,7 @@ export const perplexityConfig: BuiltinProviderConfig = {
   apiEndpoint: 'https://www.perplexity.ai',
   chatPath: '/rest/sse/perplexity_ask',
   headers: {
-    'User-Agent': 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/134.0.0.0 Safari/537.36',
+    'User-Agent': browserUserAgent(),
     'Accept': 'text/event-stream',
     'Content-Type': 'application/json',
     'Origin': 'https://www.perplexity.ai',
