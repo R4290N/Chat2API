@@ -2,6 +2,7 @@ import axios, { AxiosError } from 'axios'
 import { getBuiltinProvider } from './builtin'
 import type { Provider, ProviderCheckResult, Account } from '../../shared/types'
 import type { BuiltinProviderConfig } from '../store/types'
+import { deepSeekBrowserHeaders } from './fingerprint'
 
 const CHECK_TIMEOUT = 15000
 
@@ -188,9 +189,7 @@ export class ProviderChecker {
           headers: {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json',
-            'Accept': '*/*',
-            'Origin': 'https://chat.deepseek.com',
-            'Referer': 'https://chat.deepseek.com/',
+            ...deepSeekBrowserHeaders(),
           },
           timeout: CHECK_TIMEOUT,
           validateStatus: () => true,

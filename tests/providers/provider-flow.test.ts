@@ -186,9 +186,13 @@ test('DeepSeek default model mapping seeding preserves editable replacement sema
 test('DeepSeek provider config uses Web 2.0 browser headers', () => {
   assert.equal(deepseekConfig.headers['X-App-Version'], '2.0.0')
   assert.equal(deepseekConfig.headers['X-Client-Version'], '2.0.0')
-  assert.equal(deepseekConfig.headers['X-Client-Locale'], 'zh_CN')
+  assert.equal(deepseekConfig.headers['X-Client-Locale'], 'ru_RU')
   assert.match(deepseekConfig.headers['User-Agent'], /Chrome\/148\.0\.0\.0/)
   assert.match(deepseekConfig.headers['Sec-Ch-Ua'], /Chromium";v="148/)
+  assert.match(deepseekConfig.headers['User-Agent'], /Windows NT 10\.0/)
+  assert.equal(deepseekConfig.headers['Sec-Ch-Ua-Platform'], '"Windows"')
+  assert.match(deepseekConfig.headers['Accept-Language'], /^ru-RU,ru;q=0\.9/)
+  assert.match(deepseekConfig.headers['x-Client-Timezone-Offset'], /^-?\d+$/)
 })
 
 test('GLM, Kimi, and MiniMax built-in default models match current web providers', () => {
