@@ -45,9 +45,12 @@ const implementedScriptPaths = [
 
 const escapeRegExp = (value) => value.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
 
+// Windows checkouts may use CRLF; frontmatter assertions expect LF.
+const readText = (file) => fs.readFileSync(file, 'utf8').replace(/\r\n/g, '\n')
+
 test('versioned Chat2API testing skills exist and have trigger-only descriptions', () => {
   for (const { file, name, description } of skillPaths) {
-    const text = fs.readFileSync(file, 'utf8')
+    const text = readText(file)
     // Skill frontmatter is a discovery contract; keep exact names and descriptions stable.
     assert.match(
       text,
@@ -60,7 +63,7 @@ test('versioned Chat2API testing skills exist and have trigger-only descriptions
 
 test('focused skill docs reference implemented script paths only', () => {
   for (const file of focusedSkillFiles) {
-    const text = fs.readFileSync(file, 'utf8')
+    const text = readText(file)
     assert.doesNotMatch(text, /Planned Script/, file)
   }
 
@@ -70,7 +73,7 @@ test('focused skill docs reference implemented script paths only', () => {
 })
 
 test('proxy testing skill delegates focused responsibilities', () => {
-  const text = fs.readFileSync('skills/chat2api-proxy-testing/SKILL.md', 'utf8')
+  const text = readText('skills/chat2api-proxy-testing/SKILL.md')
   assert.match(text, /chat2api-management-api/)
   assert.match(text, /chat2api-har-tool-fixture/)
   assert.match(text, /chat2api-tool-client-replay/)
@@ -78,7 +81,7 @@ test('proxy testing skill delegates focused responsibilities', () => {
 })
 
 test('versioned proxy testing skill warns against ignored local source of truth', () => {
-  const text = fs.readFileSync('skills/chat2api-proxy-testing/SKILL.md', 'utf8')
+  const text = readText('skills/chat2api-proxy-testing/SKILL.md')
   assert.match(text, /versioned source of truth/)
   assert.match(text, /ignored \.codex/)
 })

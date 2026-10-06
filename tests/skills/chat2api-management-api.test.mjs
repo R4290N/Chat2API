@@ -4,6 +4,7 @@ import fs from 'node:fs'
 import os from 'node:os'
 import path from 'node:path'
 import test from 'node:test'
+import { pathToFileURL } from 'node:url'
 
 const script = 'skills/chat2api-management-api/scripts/management-api.mjs'
 const skill = 'skills/chat2api-management-api/SKILL.md'
@@ -84,7 +85,8 @@ globalThis.fetch = async (url, options = {}) => {
       CHAT2API_BASE_URL: 'http://mock.local',
       CHAT2API_MGMT_SECRET: 'mgmt_super_secret_value',
     }, {
-      nodeArgs: ['--import', mockFile],
+      // --import needs a file URL; a bare Windows path (C:\...) fails to load as ESM
+      nodeArgs: ['--import', pathToFileURL(mockFile).href],
     })
 
     assert.notEqual(result.status, 0)
