@@ -13,6 +13,7 @@
     "dev": "bash scripts/dev.sh",
     "dev:win": "electron-vite dev",
     "check:source-artifacts": "node scripts/check-source-artifacts.js",
+    "test": "node --test --experimental-strip-types \"tests/**/*.test.ts\" \"tests/**/*.test.mjs\"",
     "build": "npm run check:source-artifacts && electron-vite build",
     "preview": "electron-vite preview",
     "start": "electron-vite preview",
