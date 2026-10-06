@@ -57,7 +57,7 @@ const providerIcons: Record<string, string> = {
 }
 
 function mapOAuthCredentials(providerId: string | undefined, credentials: Record<string, string>): Record<string, string> {
-  console.log('[mapOAuthCredentials] Input providerId:', providerId, 'credentials:', JSON.stringify(credentials, null, 2))
+  console.log('[mapOAuthCredentials] Input providerId:', providerId, 'credential keys:', Object.keys(credentials))
   
   if (!providerId) {
     console.log('[mapOAuthCredentials] No providerId, returning as-is')
@@ -335,13 +335,13 @@ export function AddProviderDialog({
         selectedProviderData.id as ProviderVendor
       )
       
-      console.log('[AddProviderDialog] OAuth result:', JSON.stringify(result, null, 2))
+      console.log('[AddProviderDialog] OAuth result:', JSON.stringify({ success: result.success, providerId: result.providerId, error: result.error }, null, 2))
       
       if (result?.success && result.credentials) {
-        console.log('[AddProviderDialog] OAuth success, credentials:', JSON.stringify(result.credentials, null, 2))
+        console.log('[AddProviderDialog] OAuth success, credential keys:', Object.keys(result.credentials))
         
         const mappedCredentials = mapOAuthCredentials(selectedProviderData?.id, result.credentials)
-        console.log('[AddProviderDialog] Mapped credentials:', JSON.stringify(mappedCredentials, null, 2))
+        console.log('[AddProviderDialog] Mapped credential keys:', Object.keys(mappedCredentials))
         
         const hasAllRequiredFields = selectedProviderData.credentialFields
           .filter(f => f.required)

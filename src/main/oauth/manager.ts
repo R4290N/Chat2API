@@ -328,7 +328,7 @@ export class OAuthManager extends EventEmitter {
       let validationTimeout: NodeJS.Timeout | null = null
 
       const tokenFoundHandler = async (event: { key: string; value: string; allCookies?: Record<string, string> }) => {
-        console.log('[OAuthManager] tokenFoundHandler called, isValidating:', isValidating, 'event:', event.key, event.value.substring(0, 50) + '...')
+        console.log('[OAuthManager] tokenFoundHandler called, isValidating:', isValidating, 'event:', event.key, 'value: <redacted>')
 
         // Store the token
         collectedTokens[event.key] = event.value
@@ -459,7 +459,7 @@ export class OAuthManager extends EventEmitter {
             const phToken = collectedTokens.xiaomichatbot_ph || collectedTokens.ph_token
 
             console.log('[OAuthManager] Mimo collectedTokens:', JSON.stringify(collectedTokens, null, 2))
-            console.log('[OAuthManager] Mimo extracted values:', { serviceToken: serviceToken?.substring(0, 20), userId, phToken: phToken?.substring(0, 20) })
+            console.log('[OAuthManager] Mimo extracted values:', { serviceTokenLength: serviceToken?.length, userId, phTokenLength: phToken?.length })
 
             if (!serviceToken || !userId || !phToken) {
               console.log('[OAuthManager] Mimo: Missing required tokens, aborting validation')
@@ -492,7 +492,7 @@ export class OAuthManager extends EventEmitter {
           console.log('[OAuthManager] Validation result:', validation)
 
           if (validation.valid) {
-            console.log('[OAuthManager] Token is valid, completing login with credentials:', JSON.stringify(finalCredentials, null, 2))
+            console.log('[OAuthManager] Token is valid, completing login with credential keys:', Object.keys(finalCredentials))
             inAppLoginManager.completeWithSuccess(finalCredentials)
           } else {
             console.log('[OAuthManager] Token validation failed:', validation.error)

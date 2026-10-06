@@ -181,7 +181,7 @@ export class ProviderChecker {
 
   private static async checkDeepSeekToken(token: string): Promise<TokenCheckResult> {
     try {
-      console.log('[DeepSeek] Validating Token:', token.substring(0, 20) + '...')
+      console.log('[DeepSeek] Validating Token: <redacted>')
       
       const response = await axios.get(
         'https://chat.deepseek.com/api/v0/users/current',
@@ -229,7 +229,7 @@ export class ProviderChecker {
 
   private static async checkGLMToken(refreshToken: string): Promise<TokenCheckResult> {
     try {
-      console.log('[GLM] Validating Token:', refreshToken.substring(0, 20) + '...')
+      console.log('[GLM] Validating Token: <redacted>')
       
       const sign = await this.generateGLMSignV2()
       
@@ -325,7 +325,7 @@ export class ProviderChecker {
 
   private static async checkKimiToken(token: string): Promise<TokenCheckResult> {
     try {
-      console.log('[Kimi] Validating Token:', token.substring(0, 20) + '...')
+      console.log('[Kimi] Validating Token: <redacted>')
       
       const response = await axios.post(
         'https://www.kimi.com/apiv2/kimi.gateway.order.v1.SubscriptionService/GetSubscription',
@@ -373,7 +373,7 @@ export class ProviderChecker {
     token: string
   ): Promise<TokenCheckResult> {
     try {
-      console.log('[MiniMax] Validating Token:', token.substring(0, 30) + '...')
+      console.log('[MiniMax] Validating Token: <redacted>')
       
       const crypto = await import('crypto')
       
