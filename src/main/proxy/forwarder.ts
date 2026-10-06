@@ -10,6 +10,7 @@ import { Account, Provider } from '../store/types'
 import { ForwardResult, ChatCompletionRequest, ProxyContext } from './types'
 import { proxyStatusManager } from './status'
 import { storeManager } from '../store/store'
+import { withAuthorizationFromCredentials } from './utils/headers'
 import { DeepSeekAdapter } from './adapters/deepseek'
 import { DeepSeekStreamHandler } from './adapters/deepseek-stream'
 import { GLMAdapter, GLMStreamHandler } from './adapters/glm'
@@ -1310,22 +1311,16 @@ export class RequestForwarder {
    * Build Request Headers
    */
   private buildHeaders(provider: Provider, account: Account): Record<string, string> {
-    const headers: Record<string, string> = {
+    const baseHeaders: Record<string, string> = {
       'Content-Type': 'application/json',
       ...provider.headers,
     }
 
     const credentials = account.credentials
 
-    if (credentials.token) {
-      headers['Authorization'] = `Bearer ${credentials.token}`
-    } else if (credentials.apiKey) {
-      headers['Authorization'] = `Bearer ${credentials.apiKey}`
-    } else if (credentials.accessToken) {
-      headers['Authorization'] = `Bearer ${credentials.accessToken}`
-    } else if (credentials.refreshToken) {
-      headers['Authorization'] = `Bearer ${credentials.refreshToken}`
-    }
+    // An Authorization header configured on the provider (e.g. custom provider
+    // with a fixed key) must not be overwritten by account credentials.
+    const headers = withAuthorizationFromCredentials(baseHeaders, credentials)
 
     if (credentials.cookie) {
       headers['Cookie'] = credentials.cookie
